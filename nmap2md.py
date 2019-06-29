@@ -64,12 +64,14 @@ for address in result:
     md += "%s %s\n\n" % ('#' * options.hs, address)
     md += "| %s |" % " | ".join(map(lambda s: s.title(), columns))
     md += "\n"
+    
     # Adding +2 for 1 space on left and right sides
     md += "|%s|" % "|".join(map(lambda s: '-' * (len(s) + 2), columns))
     md += "\n"
 
     for port_info in result[address]:
-        # Calculating 
+        # Calculating correct amount of spaces to add some padding and justify content in the cell
+        # Currently it does not work if content is bigger that the column, in any case it does not break the Markdown view
         md += "| %s |" % " | ".join(map(lambda s: port_info[s] + (' ' * (len(s) - len(port_info[s]))), columns))
         md += "\n"
     
