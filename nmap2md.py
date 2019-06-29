@@ -71,7 +71,7 @@ for address in result:
 
     for port_info in result[address]:
         # Calculating correct amount of spaces to add some padding and justify content in the cell
-        # Currently it does not work if content is bigger that the column, in any case it does not break the Markdown view
+        # Currently it does not work if content is bigger than the column, in any case it does not break the Markdown view
         md += "| %s |" % " | ".join(map(lambda s: port_info[s] + (' ' * (len(s) - len(port_info[s]))), columns))
         md += "\n"
     
