@@ -47,7 +47,14 @@ for host in tree.getroot().findall("host"):
     address = host.find("address").attrib["addr"]
     port_info = []
     for port in host.find("ports").findall("port"):
-        service = port.find("service").attrib
+
+        service_node = port.find("service")
+
+        if service_node is None:
+            service = []
+        else:
+            service = service_node.attrib
+
         port_info.append({
             "port": port.attrib.get("portid", ""),
             "protocol": port.attrib.get("protocol", ""),
