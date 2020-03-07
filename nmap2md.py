@@ -8,9 +8,8 @@ __version__ = "1.0.0"
 
 supported_columns = [
     'port',
-    'protocol',
+    'state',
     'service',
-    'product',
     'version'
 ]
 
@@ -18,12 +17,13 @@ parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __ver
 
 # Different variations of columns:
 # port: port number
+# state: port state (open, closed)
 # protocol: protocol where port is located
 # service: service name (http, ssh)
 # product: application name
 # version: application version
-parser.add_option("-c", "--columns", default="port,service,product", help="choice of the columns for the table. Example: %s" % ",".join(supported_columns))
-parser.add_option("--hs", default=1, type="int", help="address is used as a header, this option defines header number h1 -> h6")
+parser.add_option("-c", "--columns", default="port,state,service,version", help="choice of the columns for the table. Example: %s" % ",".join(supported_columns))
+parser.add_option("--hs", default=0, type="int", help="address is used as a header, this option defines header number h1 -> h6")
 
 (options, args) = parser.parse_args()
 
@@ -32,7 +32,7 @@ result = {}
 md = ""
 
 # Wrong header number, downgrading to default value: 1
-if options.hs < 1 or options.hs > 6:
+if options.hs < 0 or options.hs > 6:
     options.hs = 1
 
 try:
@@ -48,6 +48,7 @@ for host in tree.getroot().findall("host"):
     port_info = []
     for port in host.find("ports").findall("port"):
 
+        state = port.find("state")
         service_node = port.find("service")
 
         if service_node is None:
@@ -56,11 +57,10 @@ for host in tree.getroot().findall("host"):
             service = service_node.attrib
 
         port_info.append({
-            "port": port.attrib.get("portid", ""),
-            "protocol": port.attrib.get("protocol", ""),
+            "port": port.attrib.get("portid", "") + "/" + port.attrib.get("protocol", ""),
+            "state": state.get("state", ""),
             "service": service.get("name", ""),
-            "product": service.get("product", ""),
-            "version": service.get("version", "")
+            "version": service.get("product", "") + " " + service.get("version", ""),
         })
     
     result[address] = port_info
@@ -68,7 +68,8 @@ for host in tree.getroot().findall("host"):
 # Start converting data to Markdown
 # Herenow IP addresses are defined as a header
 for address in result:
-    md += "%s %s\n\n" % ('#' * options.hs, address)
+    if options.hs != 0:
+        md += "%s %s\n\n" % ('#' * options.hs, address)
     md += "| %s |" % " | ".join(map(lambda s: s.title(), columns))
     md += "\n"
     
