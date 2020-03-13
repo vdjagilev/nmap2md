@@ -60,7 +60,7 @@ for host in tree.getroot().findall("host"):
             "port": port.attrib.get("portid", "") + "/" + port.attrib.get("protocol", ""),
             "state": state.get("state", ""),
             "service": service.get("name", "") if service else '',
-            "version": service.get("product", "") if service else '' + " " + service.get("version", "") if service else '',
+            "version": service.get("product", "") + " " + service.get("version", "") if service else '',
         })
 
     result[address] = port_info
