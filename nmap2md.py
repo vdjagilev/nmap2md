@@ -52,17 +52,17 @@ for host in tree.getroot().findall("host"):
         service_node = port.find("service")
 
         if service_node is None:
-            service = []
+            service = False
         else:
             service = service_node.attrib
 
         port_info.append({
             "port": port.attrib.get("portid", "") + "/" + port.attrib.get("protocol", ""),
             "state": state.get("state", ""),
-            "service": service.get("name", ""),
-            "version": service.get("product", "") + " " + service.get("version", ""),
+            "service": service.get("name", "") if service else '',
+            "version": service.get("product", "") if service else '' + " " + service.get("version", "") if service else '',
         })
-    
+
     result[address] = port_info
 
 # Start converting data to Markdown
@@ -72,7 +72,7 @@ for address in result:
         md += "%s %s\n\n" % ('#' * options.hs, address)
     md += "| %s |" % " | ".join(map(lambda s: s.title(), columns))
     md += "\n"
-    
+
     # Adding +2 for 1 space on left and right sides
     md += "|%s|" % "|".join(map(lambda s: '-' * (len(s) + 2), columns))
     md += "\n"
@@ -82,7 +82,7 @@ for address in result:
         # Currently it does not work if content is bigger than the column, in any case it does not break the Markdown view
         md += "| %s |" % " | ".join(map(lambda s: port_info[s] + (' ' * (len(s) - len(port_info[s]))), columns))
         md += "\n"
-    
+
     md += "\n\n"
 
 
