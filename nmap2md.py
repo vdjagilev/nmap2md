@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+import re
 import sys
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
+
 import columns_definition
 
 __version__ = "1.0.0"
@@ -16,20 +18,26 @@ supported_columns = [
 
 parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __version__)
 
-# Different variations of columns:
-# port: port number
-# state: port state (open, closed)
-# protocol: protocol where port is located
-# service: service name (http, ssh)
-# product: application name
-# version: application version
 parser.add_option("-c", "--columns", default="Port,State,Service,Version", help="define a columns for the table")
-parser.add_option("--hs", default=0, type="int", help="address is used as a header, this option defines header number h1 -> h6")
-parser.add_option("-r", "--rows", default="define rows which will report certain data")
+parser.add_option(
+    "--hs",
+    default=0,
+    type="int",
+    help="address is used as a header, this option defines header number h1 -> h6"
+)
+parser.add_option(
+    "-r",
+    "--rows",
+    default="[port.number]/[port.protocol],[state],[service.name],[service.product] [service.version]",
+    help="define rows which will report certain data. Those rows: [port.number], [port.protocol], [state], "
+         "[service.name], [service.product], [service.version] "
+)
 
 (options, args) = parser.parse_args()
 
-columns = list(column for column in options.columns.split(",") if column in supported_columns)
+columns = options.columns.split(",")
+rows = options.rows.split(",")
+definitions = columns_definition.Element.build(columns_definition.definition)
 result = {}
 md = ""
 
@@ -48,7 +56,16 @@ except IndexError:
 for host in tree.getroot().findall("host"):
     address = host.find("address").attrib["addr"]
     port_info = []
+
     for port in host.find("ports").findall("port"):
+        # ToDo: Replace data in the string
+        for row in rows:
+            bracket_elements = re.findall("\[([a-z\.]+)\]", row)
+
+            for i, row_element in enumerate(bracket_elements):
+                print(row_element)
+
+            print("-")
 
         state = port.find("state")
         service_node = port.find("service")
@@ -82,10 +99,10 @@ for address in result:
     for port_info in result[address]:
         # Calculating correct amount of spaces to add some padding and justify content in the cell
         # Currently it does not work if content is bigger than the column, in any case it does not break the Markdown view
+        # ToDo: Corresponding column should be numerical, check boundaries as well.
         md += "| %s |" % " | ".join(map(lambda s: port_info[s] + (' ' * (len(s) - len(port_info[s]))), columns))
         md += "\n"
 
     md += "\n\n"
-
 
 print(md)
