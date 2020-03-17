@@ -3,6 +3,7 @@
 import sys
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
+import columns_definition
 
 __version__ = "1.0.0"
 
@@ -22,8 +23,9 @@ parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __ver
 # service: service name (http, ssh)
 # product: application name
 # version: application version
-parser.add_option("-c", "--columns", default="port,state,service,version", help="choice of the columns for the table. Example: %s" % ",".join(supported_columns))
+parser.add_option("-c", "--columns", default="Port,State,Service,Version", help="define a columns for the table")
 parser.add_option("--hs", default=0, type="int", help="address is used as a header, this option defines header number h1 -> h6")
+parser.add_option("-r", "--rows", default="define rows which will report certain data")
 
 (options, args) = parser.parse_args()
 
@@ -70,7 +72,7 @@ for host in tree.getroot().findall("host"):
 for address in result:
     if options.hs != 0:
         md += "%s %s\n\n" % ('#' * options.hs, address)
-    md += "| %s |" % " | ".join(map(lambda s: s.title(), columns))
+    md += "| %s |" % " | ".join(columns)
     md += "\n"
 
     # Adding +2 for 1 space on left and right sides
