@@ -9,13 +9,6 @@ import columns_definition
 
 __version__ = "1.0.0"
 
-supported_columns = [
-    'port',
-    'state',
-    'service',
-    'version'
-]
-
 parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __version__)
 
 parser.add_option("-c", "--columns", default="Port,State,Service,Version", help="define a columns for the table")
@@ -26,24 +19,31 @@ parser.add_option(
     help="address is used as a header, this option defines header number h1 -> h6"
 )
 parser.add_option(
-    "-r",
-    "--rows",
+    "--rc",
+    "--row-cells",
     default="[port.number]/[port.protocol],[state],[service.name],[service.product] [service.version]",
     help="define rows which will report certain data. Those rows: [port.number], [port.protocol], [state], "
          "[service.name], [service.product], [service.version] "
 )
+parser.add_option(
+    "--print-empty",
+    dest="print_empty",
+    action="store_true",
+    help="should addresses with no opened ports to be printed"
+)
+parser.set_defaults(print_empty=False)
 
 (options, args) = parser.parse_args()
 
 columns = options.columns.split(",")
-rows = options.rows.split(",")
+row_cells = options.rc.split(",")
 definitions = columns_definition.Element.build(columns_definition.definition)
 result = {}
 md = ""
 
-# Wrong header number, downgrading to default value: 1
+# Wrong header number, setting to default option
 if options.hs < 0 or options.hs > 6:
-    options.hs = 1
+    options.hs = 0
 
 try:
     tree = ET.parse(args[0])
@@ -56,37 +56,39 @@ except IndexError:
 for host in tree.getroot().findall("host"):
     address = host.find("address").attrib["addr"]
     port_info = []
+    ports = host.find("ports")
 
-    for port in host.find("ports").findall("port"):
-        # ToDo: Replace data in the string
-        for row in rows:
-            bracket_elements = re.findall("\[([a-z\.]+)\]", row)
+    if ports:
+        for port in ports.findall("port"):
+            cells = []
 
-            for i, row_element in enumerate(bracket_elements):
-                print(row_element)
+            for rc in row_cells:
+                current_cell = rc
+                for bc in re.findall("(\[[a-z\.*]+\])", rc):
+                    for definition in definitions:
+                        elem = definition.find(bc[1:-1])
 
-            print("-")
+                        if elem:
+                            xml_element = port.find(elem.xpathfull())
+                            if xml_element is not None:
+                                data = elem.data(xml_element)
+                                current_cell = current_cell.replace(bc, data)
+                                break
 
-        state = port.find("state")
-        service_node = port.find("service")
+                            break
 
-        if service_node is None:
-            service = False
-        else:
-            service = service_node.attrib
+                cells.append(current_cell)
 
-        port_info.append({
-            "port": port.attrib.get("portid", "") + "/" + port.attrib.get("protocol", ""),
-            "state": state.get("state", ""),
-            "service": service.get("name", "") if service else '',
-            "version": service.get("product", "") + " " + service.get("version", "") if service else '',
-        })
+            port_info.append(cells)
 
     result[address] = port_info
 
 # Start converting data to Markdown
-# Herenow IP addresses are defined as a header
+# IP addresses are defined as a header
 for address in result:
+    if not options.print_empty and len(result[address]) == 0:
+        continue
+
     if options.hs != 0:
         md += "%s %s\n\n" % ('#' * options.hs, address)
     md += "| %s |" % " | ".join(columns)
@@ -97,10 +99,7 @@ for address in result:
     md += "\n"
 
     for port_info in result[address]:
-        # Calculating correct amount of spaces to add some padding and justify content in the cell
-        # Currently it does not work if content is bigger than the column, in any case it does not break the Markdown view
-        # ToDo: Corresponding column should be numerical, check boundaries as well.
-        md += "| %s |" % " | ".join(map(lambda s: port_info[s] + (' ' * (len(s) - len(port_info[s]))), columns))
+        md += "| %s |" % " | ".join(port_info)
         md += "\n"
 
     md += "\n\n"

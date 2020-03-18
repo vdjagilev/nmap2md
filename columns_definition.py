@@ -1,6 +1,6 @@
 definition = dict(
     port={
-        'xpath': './',
+        'xpath': '.',
         'children': dict(
             number={
                 'attribute': 'portid'
@@ -12,10 +12,10 @@ definition = dict(
     },
     state={
         'attribute': 'state',
-        'xpath': './state'
+        'xpath': 'state'
     },
     service={
-        'xpath': './service',
+        'xpath': 'service',
         'children': dict(
             name={
                 'attribute': 'name'
@@ -61,16 +61,14 @@ class Element:
         either it's attribute data or the text value from the XML element
         """
 
-        node = xml_element.findall(self.xpathfull())
-
         if self.text:
-            if node.text:
-                return node.text
+            if xml_element.text:
+                return xml_element.text
             else:
                 return default
 
         if self.attribute:
-            return node.get(self.attribute, default)
+            return xml_element.get(self.attribute, default)
 
         return default
 
