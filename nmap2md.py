@@ -41,6 +41,10 @@ definitions = columns_definition.Element.build(columns_definition.definition)
 result = {}
 md = ""
 
+if len(columns) != len(row_cells):
+    print("[Err] Columns and row cells amount should be equal")
+    sys.exit()
+
 # Wrong header number, setting to default option
 if options.hs < 0 or options.hs > 6:
     options.hs = 0
