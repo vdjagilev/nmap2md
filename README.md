@@ -4,11 +4,21 @@ A little utility to convert nmap XML results to markdown tables.
 
 ## Usage
 
+Download application, you can use git for it:
+
+```
+git clone git@github.com:vdjagilev/nmap2md.git
+cd nmap2md
+nmap -A -T4 -oX test [target]
+```
+
 Example which parses nmap XML and outputs Markdown tables
 
 ```
-python nmap2md.py /path/to/file/test.xml -c "Port,State,Service,Version" --hs 4 --rc "[port.number]/[port.protocol],[state],*[service.name]*,[service.product] [service.version]"
+./nmap2md.py test.xml
 ```
+
+## Options
 
 Columns and row cells definition should be divided by `,`.
 
@@ -30,7 +40,11 @@ Columns and row cells definition should be divided by `,`.
 
 ## Output example
 
-Example was taken from https://nmap.org/book/output-formats-xml-output.html and used command above:
+Example was taken from https://nmap.org/book/output-formats-xml-output.html and used this command:
+
+```
+./nmap2md.py test.xml -c "Port,State,Service,Version" --hs 4 --rc "[port.number]/[port.protocol],[state],*[service.name]*,[service.product] [service.version]"
+```
 
 #### 74.207.244.221
 
