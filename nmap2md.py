@@ -2,6 +2,7 @@
 
 import re
 import sys
+import magic
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
@@ -14,7 +15,7 @@ parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __ver
 parser.add_option("-c", "--columns", default="Port,State,Service,Version", help="define a columns for the table")
 parser.add_option(
     "--hs",
-    default=0,
+    default=4,
     type="int",
     help="address is used as a header, this option defines header number h1 -> h6"
 )
@@ -35,6 +36,31 @@ parser.set_defaults(print_empty=False)
 
 (options, args) = parser.parse_args()
 
+def fileCheck():
+    f = (args[0])
+    kind = magic.from_file(f)
+    if ('XML'.casefold() in kind.casefold()) == False:
+        print("File supplied is not a valid XML file")
+        print()
+        parser.print_help()
+        sys.exit()
+
+try:
+    fileCheck()
+
+except IndexError:
+    print("No filename supplied as an argument!")
+    print()
+    parser.print_help()
+    sys.exit()
+
+except OSError as err:
+    print("Invalid or nonexistant filename supplied as an argument!")
+    print()
+    parser.print_help()
+    sys.exit()
+
+
 columns = options.columns.split(",")
 row_cells = options.rc.split(",")
 definitions = columns_definition.Element.build(columns_definition.definition)
@@ -47,12 +73,18 @@ if len(columns) != len(row_cells):
 
 # Wrong header number, setting to default option
 if options.hs < 0 or options.hs > 6:
-    options.hs = 0
+    options.hs = 4
 
 try:
     tree = ET.parse(args[0])
 except IndexError:
     print("[Err] No file could be found")
+    print()
+    parser.print_help()
+    sys.exit()
+
+except ET.ParseError:
+    print("[Err] Something went wrong when parsing the XML file - perhaps it's corrupted/invalid? Please check file sanity and try again.")
     print()
     parser.print_help()
     sys.exit()
@@ -108,4 +140,6 @@ for address in result:
 
     md += "\n\n"
 
+print()
+print()
 print(md)
