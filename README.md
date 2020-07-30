@@ -8,6 +8,7 @@ Download application, you can use git for it:
 
 ```
 git clone git@github.com:vdjagilev/nmap2md.git
+pip3 install python-magic
 cd nmap2md
 nmap -A -T4 -oX test [target]
 ```
@@ -52,6 +53,16 @@ Example was taken from https://nmap.org/book/output-formats-xml-output.html and 
 |------|-------|---------|---------|
 | 22/tcp | open | *ssh* | OpenSSH 5.3p1 Debian 3ubuntu7 |
 | 80/tcp | open | *http* | Apache httpd 2.2.14 |
+
+
+## Updates/Modifications
+The following changes were made by initinfosec:
+
+* Change default header value (--hs) from 0 to 4, so that the IP header is present in table by default without args
+* Implement basic file checks and more friendly errors. Upon each error, a discrete message is displayed about the issue, and prints the usage info and exists.  These checks include:
+	- Checking for existance of file
+	- Checking if filetype is XML
+	- Checking validity of XML file (catch-all exception for ET parse errors)
 
 ## Contributors
 
