@@ -2,7 +2,6 @@
 
 import re
 import sys
-import magic
 import xml.etree.ElementTree as ET
 from optparse import OptionParser
 
@@ -36,31 +35,6 @@ parser.set_defaults(print_empty=False)
 
 (options, args) = parser.parse_args()
 
-def fileCheck():
-    f = (args[0])
-    kind = magic.from_file(f)
-    if ('XML'.casefold() in kind.casefold()) == False:
-        print("File supplied is not a valid XML file")
-        print()
-        parser.print_help()
-        sys.exit()
-
-try:
-    fileCheck()
-
-except IndexError:
-    print("No filename supplied as an argument!")
-    print()
-    parser.print_help()
-    sys.exit()
-
-except OSError as err:
-    print("Invalid or nonexistant filename supplied as an argument!")
-    print()
-    parser.print_help()
-    sys.exit()
-
-
 columns = options.columns.split(",")
 row_cells = options.rc.split(",")
 definitions = columns_definition.Element.build(columns_definition.definition)
@@ -78,15 +52,17 @@ if options.hs < 0 or options.hs > 6:
 try:
     tree = ET.parse(args[0])
 except IndexError:
-    print("[Err] No file could be found")
+    print("[Err] No filename supplied as an argument")
     print()
     parser.print_help()
     sys.exit()
-
-except ET.ParseError:
-    print("[Err] Something went wrong when parsing the XML file - perhaps it's corrupted/invalid? Please check file sanity and try again.")
+except IOError:
+    print("[Err] Non-readable or non-existent file supplied as an argument")
     print()
-    parser.print_help()
+    sys.exit()
+except ET.ParseError:
+    print("[Err] Something went wrong when parsing the XML file - perhaps it's corrupted/invalid?")
+    print()
     sys.exit()
 
 for host in tree.getroot().findall("host"):
