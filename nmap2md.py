@@ -7,7 +7,7 @@ from optparse import OptionParser
 
 import columns_definition
 
-__version__ = "1.1.0"
+__version__ = "1.1.2"
 
 parser = OptionParser(usage="%prog [options] file.xml", version="%prog " + __version__)
 

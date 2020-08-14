@@ -104,3 +104,5 @@ include/
 
 # mypy
 .mypy_cache/
+
+.idea/
