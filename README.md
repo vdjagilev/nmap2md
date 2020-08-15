@@ -8,7 +8,6 @@ Download application, you can use git for it:
 
 ```
 git clone git@github.com:vdjagilev/nmap2md.git
-pip3 install python-magic
 cd nmap2md
 nmap -A -T4 -oX test [target]
 ```
