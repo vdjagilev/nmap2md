@@ -31,12 +31,18 @@ parser.add_option(
     action="store_true",
     help="should addresses with no opened ports to be printed"
 )
+parser.add_option(
+    "--sort",
+    default="Port",
+    help="Sort results by provided row cells"
+)
 parser.set_defaults(print_empty=False)
 
 (options, args) = parser.parse_args()
 
 columns = options.columns.split(",")
 row_cells = options.rc.split(",")
+sorting = options.sort.split(",")
 definitions = columns_definition.Element.build(columns_definition.definition)
 result = {}
 md = ""
