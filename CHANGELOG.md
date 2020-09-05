@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## v1.2.1
+
+* README fixes & improvements
+
 ## v1.2.0
 
 * Added sorting support

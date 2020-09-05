@@ -9,7 +9,6 @@ Download application, you can use git for it:
 ```
 git clone git@github.com:vdjagilev/nmap2md.git
 cd nmap2md
-nmap -A -T4 -oX test [target]
 ```
 
 Example which parses nmap XML and outputs Markdown tables
@@ -38,13 +37,14 @@ Columns and row cells definition should be divided by `,`.
 * `--sort` is for sorting.
     * Default: `Port;asc`
     * Can use any column that is defined in `-c`
-    * `asc` & `desc` options, if none is provided: `asc by default
+    * `asc` & `desc` options, if none is provided: `asc` by default
 * `--print-empty` some port scanning results are empty and those are not displayed. However if there is a need to print empty sets, this option allows this.
     * Default: False
 
 ## Output example
 
-Example was taken from https://nmap.org/book/output-formats-xml-output.html and used this command:
+An example with many options and MD support in table cells (service values are *italic*).
+XML file was taken from https://nmap.org/book/output-formats-xml-output.html and this command was used:
 
 ```
 ./nmap2md.py test.xml -c "Port,State,Service,Version" --hs 4 --rc "[port.number]/[port.protocol],[state],*[service.name]*,[service.product] [service.version]"
