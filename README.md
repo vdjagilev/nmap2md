@@ -35,6 +35,10 @@ Columns and row cells definition should be divided by `,`.
         * `[service.version]` Version of the product (2.2.14)
 * `--hs` is **h**eader **s**ize. Size variations: from 1 to 6.
     * Default: 0 (disabled)
+* `--sort` is for sorting.
+    * Default: `Port;asc`
+    * Can use any column that is defined in `-c`
+    * `asc` & `desc` options, if none is provided: `asc by default
 * `--print-empty` some port scanning results are empty and those are not displayed. However if there is a need to print empty sets, this option allows this.
     * Default: False
 

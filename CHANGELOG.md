@@ -1,6 +1,10 @@
 Changelog
 =========
 
+## v1.2.0
+
+* Added sorting support
+
 ## v1.1.2
 
 * Better error handling (more friendly errors)
